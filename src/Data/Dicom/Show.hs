@@ -97,6 +97,7 @@ renderValue (DicomUS us) = text (show us)
 renderValue (DicomUSList usList) = text (show usList)
 renderValue (DicomUT bs) = text bs
 renderValue (DicomERR bs) = renderByteString bs
+renderValue (DicomFRAG frags) = text (concat $ map ("\n * Fragment: " ++) (map (render . renderByteString) frags))
 
 line :: Doc
 line = text "\n"

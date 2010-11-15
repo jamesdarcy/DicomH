@@ -13,6 +13,7 @@ module Data.Dicom
     DicomObject(..),
     DicomElement(..),
     DicomValue(..),
+    DicomFragment,
     DicomElementMap,
     getTag,
     getEncapDicomObject,
@@ -91,10 +92,13 @@ data DicomValue = DicomAE String
                 | DicomUS Word16
                 | DicomUSList [Word16]
                 | DicomUT String
+                | DicomFRAG [DicomFragment]
                 | DicomERR B.ByteString
                   deriving (Eq)
 
 type DicomElementMap = Map.Map DicomTag DicomElement
+
+type DicomFragment = B.ByteString
 
 tagDict = getTagDictionary
 
@@ -177,6 +181,19 @@ hasMoreElements = do
           return False
         else return True
   
+hasMoreFragments :: Get Bool
+hasMoreFragments = do
+  empty <- isEmpty
+  if empty
+    then return False
+    else do
+      endFrag <- isFragmentEndAhead
+      if endFrag
+        then do
+          skip 8
+          return False
+        else isFragmentAhead
+  
 hasMoreItems :: Get Bool
 hasMoreItems = do
   empty <- isEmpty
@@ -190,6 +207,12 @@ hasMoreItems = do
           return False
         else isSQItemAhead
   
+isFragmentAhead :: Get Bool
+isFragmentAhead = isSQItemAhead
+
+isFragmentEndAhead :: Get Bool
+isFragmentEndAhead = isSQEndAhead
+
 isMetadata :: Get Bool
 isMetadata = liftM (== 2) $ lookAhead getWord16le
 
@@ -251,12 +274,32 @@ getDicomJpeg2000Element = do
   if ((group == 0x7fe0) && (element == 0x0010) && (valueLength == 0xffffffff))
     then do
       -- Pixel data is encapsulated
-      encapLength <- liftM fromIntegral remaining
-      value <- getDicomValue vr encapLength getDicomJpeg2000Element
-      return (DicomElement group element vr valueLength value)
+      bytesSoFar <- bytesRead
+      fragList <- getDicomFragmentList
+      bytesAfterFrags <- bytesRead
+      return (DicomElement group element "FR" (fromIntegral (bytesAfterFrags - bytesSoFar)) (DicomFRAG fragList))
     else do
       value <- getDicomValue vr valueLength getDicomJpeg2000Element
       return (DicomElement group element vr valueLength value)
+
+getDicomFragment :: Get DicomFragment
+getDicomFragment = do
+  skip 4
+  fragLength <- getWord32le
+  bytesRemaining <- remaining
+  if fragLength > (fromIntegral bytesRemaining)
+    then fail "Fragment length too long"
+    else getByteString $ fromIntegral fragLength
+
+getDicomFragmentList :: Get [DicomFragment]
+getDicomFragmentList = do
+  moreFrags <- hasMoreFragments
+  if not moreFrags
+    then return []
+    else do
+      frag <- getDicomFragment
+      rest <- getDicomFragmentList
+      return (frag : rest)
 
 skipToValueLength :: Get Word32
 skipToValueLength = skip 2 >> getWord32le
