@@ -6,7 +6,6 @@ import Data.Word
 import Data.Bits
 
 -- Delimiting markers and marker segments
-
 -- Start of Codestream
 j2K_SOC :: Word16
 j2K_SOC = 0xff4f
@@ -24,7 +23,6 @@ j2K_EOC :: Word16
 j2K_EOC = 0xffd9
 
 -- Fixed information marker segments
-
 -- Image and Tile Size
 j2K_SIZ :: Word16
 j2K_SIZ = 0xff51
@@ -42,14 +40,62 @@ j2K_RSIZ_ROI :: Word16
 j2K_RSIZ_ROI = 0x0002
 
 -- Functional marker segments
-
 -- Coding style Default
 j2K_COD :: Word16
 j2K_COD = 0xff52
 
+-- Coding style Component
+j2K_COC :: Word16
+j2K_COC = 0xff53
+
 -- Quantization Default
 j2K_QCD :: Word16
 j2K_QCD = 0xff5c
+
+-- Quantization Component
+j2K_QCC :: Word16
+j2K_QCC = 0xff5d
+
+-- Quantization guard bits shift 
+j2K_QCX_GB_SHIFT :: Int
+j2K_QCX_GB_SHIFT = 5
+
+-- Quantization guard bits mask 
+j2K_QCX_GB_MASK :: Word8
+j2K_QCX_GB_MASK = 7
+
+-- Quantization type - Reversible
+j2K_QCX_NO_QUANTIZATION :: Word8
+j2K_QCX_NO_QUANTIZATION = 0
+
+-- Quantization type - Scalar derived
+j2K_QCX_SCALAR_DERIVED :: Word8
+j2K_QCX_SCALAR_DERIVED = 1
+
+-- Quantization type - Scalar exponential
+j2K_QCX_SCALAR_EXPONENTIAL :: Word8
+j2K_QCX_SCALAR_EXPONENTIAL = 2
+
+-- Progression Types
+-- Layer/Resolution/Component/Position progressive
+j2k_PROG_LY_RES_COMP_POS :: Word8
+j2k_PROG_LY_RES_COMP_POS = 0
+
+-- Resolution/Layer/Component/Position progressive
+j2k_PROG_RES_LY_COMP_POS :: Word8
+j2k_PROG_RES_LY_COMP_POS = 1
+
+-- Resolution/Position/Component/Layer progressive
+j2k_PROG_RES_POS_COMP_LY :: Word8
+j2k_PROG_RES_POS_COMP_LY = 2
+
+-- Position/Component/Resolution/Layer progressive
+j2k_PROG_POS_COMP_RES_LY :: Word8
+j2k_PROG_POS_COMP_RES_LY = 3
+
+-- Component/Position/Resolution/Layer progressive
+j2k_PROG_COMP_POS_RES_LY :: Word8
+j2k_PROG_COMP_POS_RES_LY = 4
 
 -- Data types
 
@@ -96,7 +142,7 @@ data DicomJ2kQcd = DicomJ2kQcd {
   j2kQcdMarker :: B.ByteString,
   j2kQcdLength :: Word16,
   j2kQcdQuantStyle :: Word8,
-  j2kQcdRest :: B.ByteString
+  j2kQcdSubBands :: B.ByteString
   }
 
 -- SIZ marker segment. Required in main header immediately after SOC marker
@@ -246,3 +292,9 @@ getJ2kSegment = do
   segData <- getByteString $ fromIntegral (segLen - 2)
   return (DicomJ2kSegment segMarker segLen segData)
 
+-- Public interface
+-- QCD
+quantType :: Word8 -> Word8
+quantType style = 
+  style .&. (complement $ shiftL j2K_QCX_GB_MASK j2K_QCX_GB_SHIFT)
+    

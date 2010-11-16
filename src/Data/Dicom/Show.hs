@@ -76,7 +76,7 @@ renderJpeg2000Qcd qcd =
   text "* QCD: " <> renderByteString (j2kQcdMarker qcd) <> line <>
   text "  Length        : " <> text (show $ j2kQcdLength qcd) <> line <>
   text "  Quant Style   : " <> text (show $ j2kQcdQuantStyle qcd) <> line <>
-  text "  Subband stuff?: " <> renderByteString (j2kQcdRest qcd)
+  text "  Sub Bands     : " <> renderByteString (j2kQcdSubBands qcd)
 
 renderJpeg2000Segment :: DicomJ2kSegment -> Doc
 renderJpeg2000Segment seg =
