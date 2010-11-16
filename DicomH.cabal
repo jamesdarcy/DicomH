@@ -16,7 +16,7 @@ library
                    bytestring >= 0.9.1, filepath >= 1.1, pretty >= 1, directory >= 1
   hs-source-dirs:  src
   exposed-modules: Data.Dicom, Data.Dicom.Dictionary, Data.Dicom.Io, Data.Dicom.Show, Data.Dicom.UID,
-                   Data.Dicom.Tag, Data.Dicom.Accessor
+                   Data.Dicom.Tag, Data.Dicom.Accessor, Data.Dicom.Jpeg2000
 
 executable dicomh
   hs-source-dirs:  src
