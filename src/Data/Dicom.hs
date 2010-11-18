@@ -241,9 +241,9 @@ getSyntaxElementFn tags =
     Just de ->
       let syntax = getStringValue $ value de in
       case syntax of
-        "1.2.840.10008.1.2.4.91" -> getDicomJpeg2000Element
-        "1.2.840.10008.1.2.1" -> getDicomExpLeElement
-        "1.2.840.10008.1.2" -> getDicomImpLeElement
+        "1.2.840.10008.1.2.4.91" -> getDicomJpeg2000Element -- jPEG_2000
+        "1.2.840.10008.1.2.1" -> getDicomExpLeElement       -- eXPLICIT_VR_LE
+        "1.2.840.10008.1.2" -> getDicomImpLeElement         -- iMPLICIT_VR_LE
         _ -> fail $ "Unsupported transfer syntax: " ++ syntax
 
 getDicomExpLeElement :: Get DicomElement

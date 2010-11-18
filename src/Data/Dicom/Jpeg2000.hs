@@ -142,7 +142,7 @@ data DicomJ2kQcd = DicomJ2kQcd {
   j2kQcdMarker :: B.ByteString,
   j2kQcdLength :: Word16,
   j2kQcdQuantStyle :: Word8,
-  j2kQcdSubBands :: B.ByteString
+  j2kQcdSubBands :: [[Word8]]
   }
 
 -- SIZ marker segment. Required in main header immediately after SOC marker
@@ -224,7 +224,7 @@ getJ2kData sot = do
   let len = j2kSotTileLength sot
   -- SOT length is always 10 and tile length is from start of SOT
   raw <- getByteString $ fromIntegral (len - 14)
-  return (DicomJ2kData marker (fromIntegral len) raw)
+  return (DicomJ2kData marker (fromIntegral (len - 14)) raw)
 
 -- EOC
 getJ2kEoc ::Get DicomJ2kEoc
@@ -239,10 +239,23 @@ getJ2kQcd cod = do
   len <- getWord16be
   startByte <- bytesRead
   quantStyle <- getWord8
-  -- See HeaderDecoder line ~776 for subband info
-  currByte <- bytesRead
-  rest <- getByteString $ fromIntegral (len - 2) - (currByte - startByte)
-  return (DicomJ2kQcd marker len quantStyle rest)
+  subBands <- getSubBands 0 (j2kCodDecompLevels cod)
+  return (DicomJ2kQcd marker len quantStyle subBands)
+
+getSubBands :: Word8 -> Word8 -> Get [[Word8]]
+getSubBands 0 maxLevel = do
+  b1 <- getWord8
+  next <- getSubBands 1 maxLevel
+  return ([b1,0,0,0]:next)
+getSubBands level maxLevel =
+  if (level > maxLevel)
+    then return []
+    else do
+      b1 <- getWord8
+      b2 <- getWord8
+      b3 <- getWord8
+      next <- getSubBands (level+1) maxLevel
+      return ([0,b1,b2,b3]:next)
 
 -- SIZ segment
 getJ2kSiz :: Get DicomJ2kSiz
