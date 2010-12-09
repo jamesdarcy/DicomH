@@ -1,5 +1,5 @@
 name:     dicomh
-version:  0.1
+version:  0.0.1
 cabal-version: >=1.6
 build-type: Simple
 author:   James d'Arcy
