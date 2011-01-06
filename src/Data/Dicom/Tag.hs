@@ -90,3 +90,8 @@ rOWS = 0x00280010
 cOLUMNS :: DicomTag
 cOLUMNS = 0x00280011
 
+-- | Group 0x7fe0
+pIXEL_DATA :: DicomTag
+pIXEL_DATA = 0x7fe00010
+
+

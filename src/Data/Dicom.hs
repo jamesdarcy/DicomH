@@ -42,11 +42,13 @@ module Data.Dicom
     getTag,
     getEncapDicomObject,
     -- * Generic accessors
+    getBytes,
     getInt16,
     getInt32,
     getString,
     getWord16,
-    getWord32
+    getWord32,
+    extractInt16s
   ) where
 
 import System.IO
@@ -540,6 +542,19 @@ getStringValue (DicomUI ui) = ui
 getStringValue _ = error "Wrong type"
 
 --
+getBytes :: DicomTag -> DicomObject -> Maybe B.ByteString
+getBytes tag dcm = do
+  let maybeElement = Map.lookup tag $ contents dcm
+  case maybeElement of
+    Nothing -> Nothing
+    Just dcmElement -> do
+      let dcmValue = value dcmElement
+      case dcmValue of
+        DicomOB dcmOb -> Just dcmOb
+        DicomOW dcmOw -> Just dcmOw
+        _             -> Nothing
+
+--
 getInt16 :: DicomTag -> DicomObject -> Maybe Int16
 getInt16 tag dcm = do
   let maybeElement = Map.lookup tag $ contents dcm
@@ -550,6 +565,24 @@ getInt16 tag dcm = do
       case dcmValue of
         DicomSS dcmSs -> Just dcmSs
         _             -> Nothing
+
+getInt16List :: Get [Int16]
+getInt16List = do
+  empty <- isEmpty
+  if empty
+    then return []
+    else do
+      x <- liftM fromIntegral getWord16le -- Fix!!! Assumes LE
+      xs <- getInt16List
+      return (x : xs)
+
+--
+extractInt16s :: B.ByteString -> [Int16]
+extractInt16s bytes = do
+  let result = runGet getInt16List bytes
+  case result of
+    (Left errorMessage, _) -> []
+    (Right intList, _)     -> intList
 
 --
 getInt32 :: DicomTag -> DicomObject -> Maybe Int32

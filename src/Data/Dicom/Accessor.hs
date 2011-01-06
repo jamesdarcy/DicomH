@@ -53,11 +53,14 @@ module Data.Dicom.Accessor
     -- * Accessors for 0x0028
     getNumberOfFrames,
     getRows,
-    getColumns
+    getColumns,
+    -- * Accessors for 0x7fe0
+    getPixelData
   ) where
 
 import Data.Word
 import Data.Int
+import qualified Data.ByteString as B
 
 import Data.Dicom
 import Data.Dicom.Tag
@@ -114,4 +117,8 @@ getRows = getWord16 rOWS
 
 getColumns :: DicomObject -> Maybe Word16
 getColumns = getWord16 cOLUMNS
+
+-- | Group 0x0028
+getPixelData :: DicomObject -> Maybe B.ByteString
+getPixelData = getBytes pIXEL_DATA
 
