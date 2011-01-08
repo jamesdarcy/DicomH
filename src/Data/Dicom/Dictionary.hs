@@ -71,6 +71,23 @@ getTagDictionary =
   Map.insert 0x00020016 (TagDictEntry "AE" "Source Application Entity Title") .
   Map.insert 0x00020100 (TagDictEntry "UI" "Private Information Creator UID") .
   Map.insert 0x00020102 (TagDictEntry "OB" "Private Information") .
+  Map.insert 0x00041130 (TagDictEntry "CS" "File-set ID") .
+  Map.insert 0x00041141 (TagDictEntry "CS" "File-set Descriptor File ID") .
+  Map.insert 0x00041142 (TagDictEntry "CS" "Specific Character Set of File-set Descriptor File") .
+  Map.insert 0x00041200 (TagDictEntry "UL" "Offset of the First Directory Record of the Root Directory Entity") .
+  Map.insert 0x00041202 (TagDictEntry "UL" "Offset of the Last Directory Record of the Root Directory Entity") .
+  Map.insert 0x00041212 (TagDictEntry "US" "File-set Consistency Flag") .
+  Map.insert 0x00041220 (TagDictEntry "SQ" "Directory Record Sequence") .
+  Map.insert 0x00041400 (TagDictEntry "UL" "Offset of the Next Directory Record") .
+  Map.insert 0x00041410 (TagDictEntry "US" "Record In-use Flag") .
+  Map.insert 0x00041420 (TagDictEntry "UL" "Offset of Referenced Lower-Level Directory Entity") .
+  Map.insert 0x00041430 (TagDictEntry "CS" "Directory Record Type") .
+  Map.insert 0x00041432 (TagDictEntry "UI" "Private Record UID") .
+  Map.insert 0x00041500 (TagDictEntry "CS" "Referenced File ID") .
+  Map.insert 0x00041510 (TagDictEntry "UI" "Referenced SOP Class UID in File") .
+  Map.insert 0x00041511 (TagDictEntry "UI" "Referenced SOP Instance UID in File") .
+  Map.insert 0x00041512 (TagDictEntry "UI" "Referenced Transfer Syntax UID in File") .
+  Map.insert 0x0004151a (TagDictEntry "UI" "Referenced Related General SOP Class UID in File") .
   Map.insert 0x00080005 (TagDictEntry "CS" "Specific Character Set") .
   Map.insert 0x00080006 (TagDictEntry "SQ" "Language Code Sequence") .
   Map.insert 0x00080008 (TagDictEntry "CS" "Image Type") .
@@ -770,7 +787,9 @@ getTagDictionary =
   Map.insert 0x60000050 (TagDictEntry "SS" "Overlay Origin") .
   Map.insert 0x60000100 (TagDictEntry "US" "Overlay Bits Allocated") .
   Map.insert 0x60000102 (TagDictEntry "US" "Overlay Bit Position") .
-  Map.insert 0x7fe00010 (TagDictEntry "OB" "Pixel Data") 
+  Map.insert 0x60003000 (TagDictEntry "OB" "Overlay Data") .
+  Map.insert 0x7fe00010 (TagDictEntry "OB" "Pixel Data") .
+  Map.insert 0xfffafffa (TagDictEntry "SQ" "Digital Signatures Sequence") 
   $ Map.empty
 
 -- | UID Dictionary
