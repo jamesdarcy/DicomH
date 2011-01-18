@@ -577,9 +577,10 @@ getInt16List = do
       return (x : xs)
 
 --
-extractInt16s :: B.ByteString -> [Int16]
-extractInt16s bytes = do
-  let result = runGet getInt16List bytes
+extractInt16s :: Int -> Int -> B.ByteString -> [Int16]
+extractInt16s frame frameSize bytes = do
+  let frameBytes = B.take frameSize $ B.drop (frame*frameSize) bytes
+  let result = runGet getInt16List frameBytes
   case result of
     (Left errorMessage, _) -> []
     (Right intList, _)     -> intList
